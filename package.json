@@ -1,0 +1,38 @@
+{
+  "name": "tcpcla",
+  "version": "0.0.1",
+  "description": "TCP Convergence Layer Adapter",
+  "main": "index.js",
+  "devDependencies": {
+    "tap": "~0.4.3"
+  },
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ruiquelhas/tcpcla.git"
+  },
+  "keywords": [
+    "tcpcla",
+    "tcp",
+    "cla",
+    "dtn",
+    "bundle",
+    "protocol"
+  ],
+  "author": {
+    "name": "Rui Quelhas",
+    "email": "rfpquelhas@gmail.com",
+    "url": "http://about.me/ruiquelhas"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10.9"
+  },
+  "readmeFilename": "README.md",
+  "gitHead": "ffd03a2aa0763b6f5b7d957a2d700ceb35f2b64d",
+  "bugs": {
+    "url": "https://github.com/ruiquelhas/tcpcla/issues"
+  }
+}
