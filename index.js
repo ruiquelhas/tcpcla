@@ -15,23 +15,6 @@ var isSupported = function (input) {
   return isInteger(input) || isIntegerBasedString(input);
 }
 
-var setupConnection = function (connection, port) {
-  connection.listen(port);
-  connection.on('connection', function (socket) {
-    socket.end();
-  });
-  connection.on('error', function (err) {
-    throw err;
-  });
-};
-
-var TCPCLA = function (input) {
-  if (isSupported(input)) {
-    this.connection = net.createServer();
-    setupConnection(this.connection, input);
-  } else {
-    throw new Error(INVALID_INPUT);
-  }
-}
+var TCPCLA = function () { }
 
 module.exports = TCPCLA;
