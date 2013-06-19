@@ -1,8 +1,9 @@
 var 
   test = require('tap').test,
-  cla = require('../index');
+  cla = require('../index'),
+  ContactHeader = require('../lib/header');
 
-test('make sure the node can listen to CL connections', function (t) {
+test('make sure the node can listen to Convergence Layer connections', function (t) {
   t.plan(2);
   var server = cla.createServer(), port = 4556, client;
   server.listen(port, function () {
@@ -17,4 +18,10 @@ test('make sure the node can listen to CL connections', function (t) {
       t.ok(server, 'the agent should be able to close gracefully');
     });
   });
+});
+
+test('make sure a valid Contact Header can be created', function (t) {
+  t.plan(1);
+  var header = new ContactHeader();
+  t.ok(header, 'a new ContactHeader instance should be created');
 });
