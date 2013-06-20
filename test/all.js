@@ -30,17 +30,24 @@ test('make sure a valid Contact Header can be created', function (t) {
   t.ok(header, 'a new ContactHeader instance should be created');
 });
 
-test('make sure the Contact Header is exchanged', function (t) {
-  t.plan(1);
+test('make sure the Contact Header is valid', function (t) {
+  t.plan(3);
   setup();
   client = cla.connect(port);
   client.on('data', function (chunk) {
     var bufferedData = new Buffer(chunk);
+    // test the existence of the magic field
     var expectedMagic = new Buffer('dtn!');
     var receivedMagic = new Buffer(expectedMagic.length);
     bufferedData.copy(receivedMagic, 0, 0, 4);
     t.equal(receivedMagic.toString('hex'), expectedMagic.toString('hex'), 
       'the magic segment should match the expected');
+    // test the type contained in the version field
+    var receivedVersion = new Buffer(1);
+    bufferedData.copy(receivedVersion, 0, 4, 5);
+    var versionValue = parseInt(receivedVersion[0], 10);
+    t.type(versionValue, 'number', 'the version should be a number');
+    t.ok(versionValue < 256, 'the version number should be lower than 256');
     client.end();
     server.close();
   });
