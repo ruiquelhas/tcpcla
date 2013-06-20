@@ -31,7 +31,7 @@ test('make sure a valid Contact Header can be created', function (t) {
 });
 
 test('make sure the Contact Header is valid', function (t) {
-  t.plan(3);
+  t.plan(6);
   setup();
   client = cla.connect(port);
   client.on('data', function (chunk) {
@@ -47,7 +47,17 @@ test('make sure the Contact Header is valid', function (t) {
     bufferedData.copy(receivedVersion, 0, 4, 5);
     var versionValue = parseInt(receivedVersion[0], 10);
     t.type(versionValue, 'number', 'the version should be a number');
-    t.ok(versionValue < 256, 'the version number should be lower than 256');
+    // test if the version number is the valid range
+    t.ok(versionValue < 256, 'the version number should be less than 256');
+    // test if the flags field is valid
+    var receivedFlags = new Buffer(1);
+    bufferedData.copy(receivedFlags, 0, 5, 6);
+    t.ok(receivedFlags[0] < 16, 
+      'the flags buffer value should be less than 16');
+    t.notOk(receivedFlags[0] === 4, 
+      "the flags buffer value can't be equal to 4");
+    t.notOk(receivedFlags[0] === 6, 
+      "the flags buffer value can't be equal to 6");
     client.end();
     server.close();
   });
