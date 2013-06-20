@@ -31,5 +31,17 @@ test('make sure a valid Contact Header can be created', function (t) {
 });
 
 test('make sure the Contact Header is exchanged', function (t) {
-  t.end();
+  t.plan(1);
+  setup();
+  client = cla.connect(port);
+  client.on('data', function (chunk) {
+    var bufferedData = new Buffer(chunk);
+    var expectedMagic = new Buffer('dtn!');
+    var receivedMagic = new Buffer(expectedMagic.length);
+    bufferedData.copy(receivedMagic, 0, 0, 4);
+    t.equal(receivedMagic.toString('hex'), expectedMagic.toString('hex'), 
+      'the magic segment should match the expected');
+    client.end();
+    server.close();
+  });
 });

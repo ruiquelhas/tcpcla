@@ -1,22 +1,19 @@
-var net = require('net');
+var 
+  net = require('net'),
+  ContactHeader = require('./lib/header');
 
-var INVALID_INPUT = 
-  'the argument should be a valid Integer or Integer-based String';
-
-var isInteger = function (input) {
-  return typeof input === 'number' && input % 1 === 0;
-};
-
-var isIntegerBasedString = function (input) {
-  return typeof input === 'string' && isInteger(parseInt(input, 10));
-};
-
-var isSupported = function (input) {
-  return isInteger(input) || isIntegerBasedString(input);
+var createServer = function () {
+  var server = net.createServer();
+  var header = new ContactHeader();
+  server.on('connection', function (socket) {
+    var data = header.valueOf();
+    socket.write(data);
+  });
+  return server;
 };
 
 var TCPCLA = {
-  createServer: net.createServer,
+  createServer: createServer,
   connect: net.connect
 };
 
