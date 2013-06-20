@@ -1,5 +1,4 @@
 var net = require('net');
-var ContactHeader = require('./lib/header');
 
 function createServer(header) {
   return net.createServer().on('connection', function (socket) {
