@@ -1,15 +1,10 @@
-var 
-  net = require('net'),
-  ContactHeader = require('./lib/header');
+var net = require('net');
+var ContactHeader = require('./lib/header');
 
-var createServer = function () {
-  var server = net.createServer();
-  var header = new ContactHeader();
-  server.on('connection', function (socket) {
-    var data = header.valueOf();
-    socket.write(data);
+var createServer = function (header) {
+  return net.createServer().on('connection', function (socket) {
+    socket.write(header.valueOf());
   });
-  return server;
 };
 
 var TCPCLA = {

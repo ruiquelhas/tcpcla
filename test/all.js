@@ -1,38 +1,45 @@
-var 
-  test = require('tap').test,
-  cla = require('../index'),
-  ContactHeader = require('../lib/header');
+var test = require('tap').test;
+var cla = require('../index');
+var ContactHeader = require('../lib/header');
 
-var client, server, port;
+var client, server, port, header;
 
-var setup = function () {
-  port = 4556;
-  server = cla.createServer();
+var setUp = function (options) {
+  // ensure the variable is defined
+  options = options || { };
+  // set auxiliary variables
+  port = options.port || 4556;
+  header = options.header || new ContactHeader();
+  // set up the server
+  server = cla.createServer(header);
   server.listen(port);
 };
 
+var tearDown = function (options) {
+  // close the client connection
+  client.end();
+  // stop the server
+  server.close();
+  // nullify the auxiliary variables
+  port = null;
+  header = null;
+};
+
 test('make sure the Convergence Layer connections work', function (t) {
+  setUp();
   t.plan(2);
-  setup();
   server.on('connection', function (socket) {
     t.ok(socket, 'the server should acknowledge the client');
-    client.end();
-    server.close();
+    tearDown();
   });
   client = cla.connect(port, function () {
     t.ok(client, 'the client should be able to connet to the server');
   });
 });
 
-test('make sure a valid Contact Header can be created', function (t) {
-  t.plan(1);
-  var header = new ContactHeader();
-  t.ok(header, 'a new ContactHeader instance should be created');
-});
-
 test('make sure the Contact Header is valid', function (t) {
+  setUp();
   t.plan(6);
-  setup();
   client = cla.connect(port);
   client.on('data', function (chunk) {
     var bufferedData = new Buffer(chunk);
@@ -58,7 +65,7 @@ test('make sure the Contact Header is valid', function (t) {
       "the flags buffer value can't be equal to 4");
     t.notOk(receivedFlags[0] === 6, 
       "the flags buffer value can't be equal to 6");
-    client.end();
-    server.close();
+    // finish and cleanup
+    tearDown();
   });
 });
