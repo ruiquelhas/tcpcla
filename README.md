@@ -1,4 +1,4 @@
 TCP CLA
 =======
 
-TCP Convergence Layer Adapter
+Node.js Bundle Protocol Convergence Layer Adapter for TCP.
