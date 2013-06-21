@@ -54,8 +54,6 @@ test('make sure the Contact Header is valid', function (t) {
     bufferedData.copy(receivedVersion, 0, 4, 5);
     var versionValue = parseInt(receivedVersion[0], 10);
     t.type(versionValue, 'number', 'the version should be a number');
-    // test if the version number is the valid range
-    t.ok(versionValue < 256, 'the version number should be less than 256');
     // test if the flags field is valid
     var receivedFlags = new Buffer(1);
     bufferedData.copy(receivedFlags, 0, 5, 6);
@@ -65,6 +63,11 @@ test('make sure the Contact Header is valid', function (t) {
       "the flags buffer value can't be equal to 4");
     t.notOk(receivedFlags[0] === 6, 
       "the flags buffer value can't be equal to 6");
+    // test if the keepalive field is valid
+    var receivedKeepAlive = new Buffer(2);
+    bufferedData.copy(receivedKeepAlive, 0, 6, 8);
+    var keepAliveValue = parseInt(receivedKeepAlive[0], 10);
+    t.type(keepAliveValue, 'number', 'the interval should be a number'); 
     // finish and cleanup
     tearDown();
   });
