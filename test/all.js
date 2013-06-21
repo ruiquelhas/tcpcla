@@ -26,10 +26,12 @@ var tearDown = function (options) {
 };
 
 test('make sure the Convergence Layer connections work', function (t) {
-  setUp();
   t.plan(2);
+  // setup the server
+  setUp();
   server.on('connection', function (socket) {
     t.ok(socket, 'the server should acknowledge the client');
+    // finish and cleanup
     tearDown();
   });
   client = cla.connect(port, function () {
@@ -37,40 +39,49 @@ test('make sure the Convergence Layer connections work', function (t) {
   });
 });
 
-test('make sure the Contact Header is valid', function (t) {
+var contactHeaderIsValid = function (data, t) {
+  t.plan(4);
+  t.test('make sure the Magic field is valid', function (t) {
+    t.plan(1);
+    var expected = new Buffer('dtn!'), got = new Buffer(expected.length);
+    data.copy(got, 0, 0, 4);
+    t.equal(got.toString('hex'), expected.toString('hex'), 
+      'the magic segment should match the expected fixed value');
+  });
+  t.test('make sure the protocol version is valid', function (t) {
+    t.plan(1);
+    var got = parseInt(new Buffer([data[4]])[0], 10);
+    // the comparison ensures the value we got is not NaN
+    t.ok(got <= 255, 'the version should be a number');
+  });
+  t.test('make sure the flags field is valid', function (t) {
+    t.plan(3);
+    var got = new Buffer([data[5]])[0];
+    t.ok(got < 16, 'the flags buffer value should be less than 16');
+    t.notOk(got === 4, 'the flags buffer value should be different than 4');
+    t.notOk(got === 6, 'the flags buffer value should be different than 6');
+  });
+  t.test('make sure keepAlive interval field is valid', function (t) {
+    t.plan(1);
+    var fieldBuffer = new Buffer([data[6], data[7]]);
+    var got = fieldBuffer.readUInt16BE(0);
+    // the comparison ensures the value we got is not NaN
+    t.ok(got <= 65535, 'the interval should be a number');
+  });
+};
+
+test('make sure the server replies with a valid Contact Header', function (t) {
+  // setup the server
   setUp();
-  t.plan(6);
+  // setup the client
   client = cla.connect(port);
   client.on('data', function (chunk) {
-    var bufferedData = new Buffer(chunk);
-    // test the existence of the magic field
-    var expectedMagic = new Buffer('dtn!');
-    var receivedMagic = new Buffer(expectedMagic.length);
-    bufferedData.copy(receivedMagic, 0, 0, 4);
-    t.equal(receivedMagic.toString('hex'), expectedMagic.toString('hex'), 
-      'the magic segment should match the expected');
-    // test the type contained in the version field
-    var receivedVersion = new Buffer(1);
-    bufferedData.copy(receivedVersion, 0, 4, 5);
-    var versionValue = parseInt(receivedVersion[0], 10);
-    // the comparison ensures versionValue is not NaN
-    t.ok(versionValue <= 255, 'the version should be a number');
-    // test if the flags field is valid
-    var receivedFlags = new Buffer(1);
-    bufferedData.copy(receivedFlags, 0, 5, 6);
-    t.ok(receivedFlags[0] < 16, 
-      'the flags buffer value should be less than 16');
-    t.notOk(receivedFlags[0] === 4, 
-      "the flags buffer value can't be equal to 4");
-    t.notOk(receivedFlags[0] === 6, 
-      "the flags buffer value can't be equal to 6");
-    // test if the keepalive field is valid
-    var receivedKeepAlive = new Buffer(2);
-    bufferedData.copy(receivedKeepAlive, 0, 6, 8);
-    var keepAliveValue = parseInt(receivedKeepAlive[0], 10);
-    // the comparison ensures keepAliveValue is not NaN
-    t.ok(keepAliveValue <= 65535, 'the interval should be a number'); 
+    contactHeaderIsValid(new Buffer(chunk), t);
     // finish and cleanup
     tearDown();
   });
+});
+
+test('make sure the client sends a valid Contact Header', function (t) {
+  t.end();
 });
