@@ -21,3 +21,4 @@ exports = module.exports = {};
 
 exports.createServer = createServer;
 exports.connect = net.connect;
+exports.createConnection = net.connect;

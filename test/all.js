@@ -2,20 +2,21 @@ var test = require('tap').test;
 var cla = require('../index');
 var ContactHeader = require('../lib/header');
 
-var client, server, port, header;
+var client, server, port, header, options;
 
-var setUp = function (options) {
+var setUp = function (config) {
   // ensure the variable is defined
-  options = options || {};
+  config = config || {};
   // set auxiliary variables
-  port = options.port || 4556;
-  header = options.header || new ContactHeader();
+  port = config.port || 4556;
+  header = config.header || new ContactHeader();
+  options = config.options || {};
   // set up the server
-  server = cla.createServer(header);
+  server = cla.createServer(header, options);
   server.listen(port);
 };
 
-var tearDown = function (options) {
+var tearDown = function () {
   // close the client connection
   client.end();
   // stop the server
