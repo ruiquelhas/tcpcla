@@ -53,7 +53,8 @@ test('make sure the Contact Header is valid', function (t) {
     var receivedVersion = new Buffer(1);
     bufferedData.copy(receivedVersion, 0, 4, 5);
     var versionValue = parseInt(receivedVersion[0], 10);
-    t.type(versionValue, 'number', 'the version should be a number');
+    // the comparison ensures versionValue is not NaN
+    t.ok(versionValue <= 255, 'the version should be a number');
     // test if the flags field is valid
     var receivedFlags = new Buffer(1);
     bufferedData.copy(receivedFlags, 0, 5, 6);
@@ -67,7 +68,8 @@ test('make sure the Contact Header is valid', function (t) {
     var receivedKeepAlive = new Buffer(2);
     bufferedData.copy(receivedKeepAlive, 0, 6, 8);
     var keepAliveValue = parseInt(receivedKeepAlive[0], 10);
-    t.type(keepAliveValue, 'number', 'the interval should be a number'); 
+    // the comparison ensures keepAliveValue is not NaN
+    t.ok(keepAliveValue <= 65535, 'the interval should be a number'); 
     // finish and cleanup
     tearDown();
   });
