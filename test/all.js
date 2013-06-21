@@ -78,7 +78,3 @@ test('make sure a valid Contact Header is exchanged', function (t) {
     });
   });
 });
-
-test('make sure the client sends a valid Contact Header', function (t) {
-  t.end();
-});
