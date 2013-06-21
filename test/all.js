@@ -6,7 +6,7 @@ var client, server, port, header;
 
 var setUp = function (options) {
   // ensure the variable is defined
-  options = options || { };
+  options = options || {};
   // set auxiliary variables
   port = options.port || 4556;
   header = options.header || new ContactHeader();
