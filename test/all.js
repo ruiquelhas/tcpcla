@@ -26,20 +26,6 @@ var tearDown = function () {
   header = null;
 };
 
-test('make sure the Convergence Layer connections work', function (t) {
-  t.plan(2);
-  // setup the server
-  setUp();
-  server.on('connection', function (socket) {
-    t.ok(socket, 'the server should acknowledge the client');
-    // finish and cleanup
-    tearDown();
-  });
-  client = cla.connect(port, function () {
-    t.ok(client, 'the client should be able to connet to the server');
-  });
-});
-
 var contactHeaderIsValid = function (data, t) {
   t.plan(4);
   t.test('make sure the Magic field is valid', function (t) {
@@ -71,15 +57,25 @@ var contactHeaderIsValid = function (data, t) {
   });
 };
 
-test('make sure the server replies with a valid Contact Header', function (t) {
+test('make sure a valid Contact Header is exchanged', function (t) {
+  t.plan(2);
   // setup the server
   setUp();
+  t.test('make sure the client sends a Contact Header', function (t) {
+    server.on('connection', function (socket) {
+      socket.once('data', function (chunk) {
+        contactHeaderIsValid(new Buffer(chunk), t);
+      });
+    });
+  });
   // setup the client
-  client = cla.connect(port);
-  client.on('data', function (chunk) {
-    contactHeaderIsValid(new Buffer(chunk), t);
-    // finish and cleanup
-    tearDown();
+  client = cla.connect(header, port);
+  t.test('make sure the server sends a Contact Header', function (t) {
+    client.once('data', function (chunk) {
+      contactHeaderIsValid(new Buffer(chunk), t);
+      // finish and cleanup
+      tearDown();
+    });
   });
 });
 
