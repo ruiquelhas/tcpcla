@@ -48,7 +48,7 @@ var contactHeaderIsValid = function (data, t) {
     t.notOk(got === 4, 'the flags buffer value should be different than 4');
     t.notOk(got === 6, 'the flags buffer value should be different than 6');
   });
-  t.test('make sure keepAlive interval field is valid', function (t) {
+  t.test('make sure the keepAlive interval field is valid', function (t) {
     t.plan(1);
     var fieldBuffer = new Buffer([data[6], data[7]]);
     var got = fieldBuffer.readUInt16BE(0);
