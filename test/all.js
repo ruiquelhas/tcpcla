@@ -30,9 +30,8 @@ var contactHeaderIsValid = function (data, t) {
   t.plan(4);
   t.test('make sure the Magic field is valid', function (t) {
     t.plan(1);
-    var expected = new Buffer('dtn!'), got = new Buffer(expected.length);
-    data.copy(got, 0, 0, 4);
-    t.equal(got.toString('hex'), expected.toString('hex'), 
+    var expected = new Buffer('dtn!'), got = data.slice(0, 4);
+    t.equal(got.toString('utf8'), expected.toString('utf8'), 
       'the magic segment should match the expected fixed value');
   });
   t.test('make sure the protocol version is valid', function (t) {
@@ -64,7 +63,7 @@ test('make sure a valid Contact Header is exchanged', function (t) {
   t.test('make sure the client sends a Contact Header', function (t) {
     server.on('connection', function (socket) {
       socket.once('data', function (chunk) {
-        contactHeaderIsValid(new Buffer(chunk), t);
+        contactHeaderIsValid(chunk, t);
       });
     });
   });
@@ -72,7 +71,7 @@ test('make sure a valid Contact Header is exchanged', function (t) {
   client = cla.connect(header, port);
   t.test('make sure the server sends a Contact Header', function (t) {
     client.once('data', function (chunk) {
-      contactHeaderIsValid(new Buffer(chunk), t);
+      contactHeaderIsValid(chunk, t);
       // finish and cleanup
       tearDown();
     });

@@ -49,7 +49,7 @@ function createServer(header, arg1, arg2) {
     if (toolkit.isDefined(arg2)) {
       arg2(socket);
     }
-    socket.write(header.valueOf());
+    socket.write(header);
     isValidConnection(socket, function (err) {
       if (err) {
         socket.end(err);
@@ -64,7 +64,7 @@ function connect(header, arg1, arg2) {
     if (toolkit.isDefined(arg2)) {
       arg2();
     }
-    client.write(header.valueOf());
+    client.write(header);
     isValidConnection(client, function (err) {
       if (err) {
         client.end(err);
