@@ -1,6 +1,6 @@
 var test = require('tap').test;
 var cla = require('../index');
-var ContactHeader = require('../lib/header');
+var ContactHeader = require('../lib/protocol/ContactHeader');
 
 var client, server, port, header, options;
 
