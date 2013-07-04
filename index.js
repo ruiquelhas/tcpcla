@@ -13,6 +13,8 @@ var ERROR_MESSAGES = {
   VERSION_MISMATCH: 'the version is not supported'
 };
 
+var socketPool = [];
+
 // Private helpers
 
 function getServerInstance(options) {
@@ -30,16 +32,33 @@ function hasValidVersion(buffer) {
   return (buffer.readUInt8(4) >= PROTOCOL_VERSION);
 }
 
-function isValidConnection(socket, callback) {
+function setupTransmissionListeners(socket, callback) {
+  // data reception handler
   socket.on('data', function (chunk) {
-    if (!isDTNConnection(chunk)) {
-      return callback(ERROR_MESSAGES.PROTOCOL_MISMATCH);
-    }
-    if (!hasValidVersion(chunk)) {
-      return callback(ERROR_MESSAGES.VERSION_MISMATCH);
+    console.log('[' + socket.localPort + ']', chunk.toString('utf8'));
+    var matches = socketPool.filter(function (match) { 
+      return match === socket; 
+    });
+    if (matches.length === 0) {
+      if (!isDTNConnection(chunk)) {
+        return callback(ERROR_MESSAGES.PROTOCOL_MISMATCH);
+      }
+      if (!hasValidVersion(chunk)) {
+        return callback(ERROR_MESSAGES.VERSION_MISMATCH);
+      }
+      socketPool.push(socket);
     }
     return callback();
   });
+  // error management handler
+  socket.on('error', function (err) {
+    console.log('[ERROR]', err.message);
+    removeSocketFromPool(socket);
+  });
+}
+
+function removeSocketFromPool(socket) {
+  socketPool.splice(socketPool.indexOf(socket), 1);
 }
 
 // Public API
@@ -49,13 +68,14 @@ function createServer(header, arg1, arg2) {
     if (toolkit.isDefined(arg2)) {
       arg2(socket);
     }
-    socket.write(header);
-    isValidConnection(socket, function (err) {
+    setupTransmissionListeners(socket, function (err) {
       if (err) {
         socket.end(err);
+      } else {
+        // do stuff
       }
-      // otherwise, continue
     });
+    socket.write(header);
   });
 }
 
@@ -64,13 +84,15 @@ function connect(header, arg1, arg2) {
     if (toolkit.isDefined(arg2)) {
       arg2();
     }
-    client.write(header);
-    isValidConnection(client, function (err) {
+    setupTransmissionListeners(client, function (err) {
       if (err) {
+        console.log('[ERROR]', err);
         client.end(err);
+      } else {
+        // do stuff
       }
-      // otherwise, continue
     });
+    client.write(header);
   });
   return client;
 }
@@ -78,5 +100,5 @@ function connect(header, arg1, arg2) {
 exports = module.exports = {};
 
 exports.createServer = createServer;
-exports.connect = connect;
 exports.createConnection = connect;
+exports.connect = connect;
